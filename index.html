@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Automation</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid #dee2e6;
+            padding: 20px 0;
+        }
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .card img {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            max-width: 100%;
+            height: auto;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .card-title {
+            margin-bottom: 10px;
+        }
+        .card-text {
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Latest News</h1>
+
+
+        <div class="form-group">
+            <label for="categoryFilter">Filter by Category:</label>
+            <select id="categoryFilter" class="form-control">
+                <option value="" {% if not request.args.get('category') %}selected{% endif %}>All Categories</option>
+                <option value="us" {% if request.args.get('category') == 'us' %}selected{% endif %}>U.S.</option>
+                <option value="politics" {% if request.args.get('category') == 'politics' %}selected{% endif %}>Politics</option>
+                <option value="world" {% if request.args.get('category') == 'world' %}selected{% endif %}>World</option>
+                <option value="business" {% if request.args.get('category') == 'business' %}selected{% endif %}>Business</option>
+                <option value="sport" {% if request.args.get('category') == 'sport' %}selected{% endif %}>Sport</option>
+            </select>
+        </div>
+
+        <div class="row mt-4">
+            {% for article in articles %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card">
+                        {% if article.photo %}
+                            <img class="card-img-top" src="{{ article.photo }}" alt="Article Photo">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="{{ article.link }}">{{ article.title }}</a></h5>
+                            <p class="card-text">Published: {{ article.published }}</p>
+                            {% if article.description %}
+                                <p class="card-text">{{ article.description }}</p>
+                            {% endif %}
+
+                            <p class="card-text">keywords: <a href="{{ article.link }}">{{ article.keywords }}</a></p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-4">
+                {% for page_num in range(1, pagination.total_pages + 1) %}
+                    {% if page_num == pagination.page %}
+                        <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="{{ url_for('index', page=page_num, category=request.args.get('category')) }}">{{ page_num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+
+    <!-- JavaScript to handle category filtering -->
+    <script>
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            var selectedCategory = this.value;
+            window.location.href = '/?category=' + selectedCategory;
+        });
+    </script>
+</body>
+</html>
